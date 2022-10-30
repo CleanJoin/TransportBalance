@@ -16,3 +16,12 @@ type TransactionsModel struct {
 	UserIdFrom uint      `json:"useridfrom"`
 	Time       time.Time `json:"time"` //utc
 }
+
+type ReserveModel struct {
+	ID        uint      `json:"id"`
+	UserId    uint      `json:"useridto"`
+	Money     float64   `json:"money"`
+	ServiceId uint      `json:"serviceId"`
+	OrderId   uint      `json:"orderId"`
+	Time      time.Time `json:"time"` //utc
+}

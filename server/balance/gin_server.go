@@ -89,6 +89,8 @@ func (serverGin *ServerGin) Use(userStorage IUserStorage, transactionsStorage It
 	serverGin.router.POST("/api/reduce", reduceMoneyHandler(serverGin.transactionsStorage))
 	serverGin.router.POST("/api/transfer", transferMoneyHandler(serverGin.transactionsStorage))
 	serverGin.router.POST("/api/getmovemoney", getLastTransactionHadler(serverGin.transactionsStorage))
+	serverGin.router.POST("/api/reserve", addMoneyToReserveHandler(serverGin.transactionsStorage))
+	serverGin.router.POST("/api/reduceReserve", reduceReserveHandler(serverGin.transactionsStorage))
 	// serverGin.router.GET("https://freecurrencyapi.net/api/v2/latest?apikey=d53f1180-94a8-11ec-992b-13a8f6f1bdf9&base_currency=USD",exchangeHandler())
 
 }
@@ -168,6 +170,60 @@ func userHandler(userStorage IUserStorage) gin.HandlerFunc {
 // @Param user body RequestMoveMoney true "RequestUser"
 // @Router /api/add [post]
 func addMoneyHandler(transactionsStorage ItransactionsStorage) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		requestUser := new(RequestMoveMoney)
+
+		statusCode, ctx2, checkBadRequest := validateClientRequest(ctx, requestUser)
+
+		if !checkBadRequest {
+			ctx.IndentedJSON(statusCode, ctx2)
+			return
+		}
+
+		_, err := transactionsStorage.AddMoney(uint(requestUser.UserId), requestUser.Money)
+		if err != nil {
+			ctx.IndentedJSON(http.StatusForbidden, err.Error())
+			return
+		}
+		ctx.IndentedJSON(http.StatusOK, gin.H{"userId": requestUser.UserId, "money": requestUser.Money})
+	}
+}
+
+// addMoneyHandler godoc
+// @tags Balance
+// @Summary addMoneyToReserveHandler
+// @Description Резерв денежных средств по определенной услуге
+// @Produce json
+// @Param user body RequestMoveMoney true "RequestUser"
+// @Router /api/add [post]
+func addMoneyToReserveHandler(transactionsStorage ItransactionsStorage) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		requestUser := new(RequestMoveMoney)
+
+		statusCode, ctx2, checkBadRequest := validateClientRequest(ctx, requestUser)
+
+		if !checkBadRequest {
+			ctx.IndentedJSON(statusCode, ctx2)
+			return
+		}
+
+		_, err := transactionsStorage.AddMoney(uint(requestUser.UserId), requestUser.Money)
+		if err != nil {
+			ctx.IndentedJSON(http.StatusForbidden, err.Error())
+			return
+		}
+		ctx.IndentedJSON(http.StatusOK, gin.H{"userId": requestUser.UserId, "money": requestUser.Money})
+	}
+}
+
+// addMoneyHandler godoc
+// @tags Balance
+// @Summary reduceReserveHandler
+// @Description списание средств из Резерва
+// @Produce json
+// @Param user body RequestMoveMoney true "RequestUser"
+// @Router /api/add [post]
+func reduceReserveHandler(transactionsStorage ItransactionsStorage) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		requestUser := new(RequestMoveMoney)
 

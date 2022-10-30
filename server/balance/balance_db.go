@@ -20,6 +20,8 @@ type ItransactionsStorage interface {
 	WriteOffMoney(userId uint, money float64) (TransactionsModel, error)
 	TransferMoney(userIdFrom uint, userIdTo uint, money float64) (TransactionsModel, error)
 	ListRecords(page int, filtermoney string, filtertime string, userid int) ([]TransactionsModel, error)
+	ReserveMoney(userId uint, serviceId uint, orderId uint, money float64) (ReserveModel, error)
+	ReduceReserveMoney(userId uint, serviceId uint, orderId uint, money float64) (ReserveModel, error)
 }
 
 func NewBalanceStorageDB(iConnectDB IConnectDB) *BalanceStorageDB {
@@ -53,6 +55,16 @@ func (balanceStorageDB *BalanceStorageDB) AddMoney(userId uint, money float64) (
 		return TransactionsModel{}, fmt.Errorf(err.Error())
 	}
 	return balanceStorageDB.transaction, nil
+}
+
+func (balanceStorageDB *BalanceStorageDB) ReserveMoney(userId uint, serviceId uint, orderId uint, money float64) (ReserveModel, error) {
+
+	return ReserveModel{}, nil
+}
+
+func (balanceStorageDB *BalanceStorageDB) ReduceReserveMoney(userId uint, serviceId uint, orderId uint, money float64) (ReserveModel, error) {
+
+	return ReserveModel{}, nil
 }
 
 func (balanceStorageDB *BalanceStorageDB) WriteOffMoney(userId uint, money float64) (TransactionsModel, error) {
