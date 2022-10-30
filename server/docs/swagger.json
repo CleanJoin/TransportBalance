@@ -1,0 +1,199 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample server transportBalance",
+        "title": "Swagger transportBalance",
+        "termsOfService": "https://github.com/CleanJoin/transportBalance/",
+        "contact": {
+            "name": "Github.com",
+            "url": "https://github.com/CleanJoin/transportBalance/"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8000",
+    "basePath": "/api/v1",
+    "paths": {
+        "/api/add": {
+            "post": {
+                "description": "Зачислить средства",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Balance"
+                ],
+                "summary": "addMoneyHandler",
+                "parameters": [
+                    {
+                        "description": "RequestUser",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/balance.RequestMoveMoney"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/health": {
+            "get": {
+                "description": "get the status of server.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Get Info"
+                ],
+                "summary": "Show the status of server.",
+                "responses": {}
+            }
+        },
+        "/api/money": {
+            "post": {
+                "description": "Получить данные о балансе",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Balance"
+                ],
+                "summary": "getMoneyUserHadler",
+                "parameters": [
+                    {
+                        "description": "User Data",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/balance.User"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/reduce": {
+            "post": {
+                "description": "Списать денежные средства",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Balance"
+                ],
+                "summary": "reduceMoneyHandler",
+                "parameters": [
+                    {
+                        "description": "User Data",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/balance.RequestMoveMoney"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/transfer": {
+            "post": {
+                "description": "Перевести деньги от пользователя к пользователю",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Balance"
+                ],
+                "summary": "transferMoneyHandler",
+                "parameters": [
+                    {
+                        "description": "User Data",
+                        "name": "TransactionsModel",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/balance.TransferMoney"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/user": {
+            "post": {
+                "description": "Регистрация пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "userHandler",
+                "parameters": [
+                    {
+                        "description": "RequestUser",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/balance.RequestUser"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    },
+    "definitions": {
+        "balance.RequestMoveMoney": {
+            "type": "object",
+            "properties": {
+                "money": {
+                    "type": "number"
+                },
+                "userid": {
+                    "type": "integer"
+                }
+            }
+        },
+        "balance.RequestUser": {
+            "type": "object",
+            "properties": {
+                "paswword": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "balance.TransferMoney": {
+            "type": "object",
+            "properties": {
+                "Money": {
+                    "type": "number"
+                },
+                "UserIdFrom": {
+                    "type": "integer"
+                },
+                "UserIdTo": {
+                    "type": "integer"
+                }
+            }
+        },
+        "balance.User": {
+            "type": "object",
+            "properties": {
+                "userid": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}

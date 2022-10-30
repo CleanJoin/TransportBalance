@@ -1,0 +1,132 @@
+basePath: /api/v1
+definitions:
+  balance.RequestMoveMoney:
+    properties:
+      money:
+        type: number
+      userid:
+        type: integer
+    type: object
+  balance.RequestUser:
+    properties:
+      paswword:
+        type: string
+      username:
+        type: string
+    type: object
+  balance.TransferMoney:
+    properties:
+      Money:
+        type: number
+      UserIdFrom:
+        type: integer
+      UserIdTo:
+        type: integer
+    type: object
+  balance.User:
+    properties:
+      userid:
+        type: integer
+    type: object
+host: localhost:8000
+info:
+  contact:
+    name: Github.com
+    url: https://github.com/CleanJoin/transportBalance/
+  description: This is a sample server transportBalance
+  termsOfService: https://github.com/CleanJoin/transportBalance/
+  title: Swagger transportBalance
+  version: "1.0"
+paths:
+  /api/add:
+    post:
+      description: Зачислить средства
+      parameters:
+      - description: RequestUser
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/balance.RequestMoveMoney'
+      produces:
+      - application/json
+      responses: {}
+      summary: addMoneyHandler
+      tags:
+      - Balance
+  /api/health:
+    get:
+      consumes:
+      - application/json
+      description: get the status of server.
+      produces:
+      - application/json
+      responses: {}
+      summary: Show the status of server.
+      tags:
+      - Get Info
+  /api/money:
+    post:
+      description: Получить данные о балансе
+      parameters:
+      - description: User Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/balance.User'
+      produces:
+      - application/json
+      responses: {}
+      summary: getMoneyUserHadler
+      tags:
+      - Balance
+  /api/reduce:
+    post:
+      description: Списать денежные средства
+      parameters:
+      - description: User Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/balance.RequestMoveMoney'
+      produces:
+      - application/json
+      responses: {}
+      summary: reduceMoneyHandler
+      tags:
+      - Balance
+  /api/transfer:
+    post:
+      description: Перевести деньги от пользователя к пользователю
+      parameters:
+      - description: User Data
+        in: body
+        name: TransactionsModel
+        required: true
+        schema:
+          $ref: '#/definitions/balance.TransferMoney'
+      produces:
+      - application/json
+      responses: {}
+      summary: transferMoneyHandler
+      tags:
+      - Balance
+  /api/user:
+    post:
+      description: Регистрация пользователя
+      parameters:
+      - description: RequestUser
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/balance.RequestUser'
+      produces:
+      - application/json
+      responses: {}
+      summary: userHandler
+      tags:
+      - Auth
+swagger: "2.0"
