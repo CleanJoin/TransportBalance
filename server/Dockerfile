@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang
 
 ADD . /usr/src/server
 

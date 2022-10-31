@@ -1,4 +1,4 @@
-basePath: /api/v1
+basePath: /
 definitions:
   balance.RequestMoveMoney:
     properties:
@@ -14,6 +14,17 @@ definitions:
       username:
         type: string
     type: object
+  balance.ReserveMoney:
+    properties:
+      money:
+        type: number
+      orderId:
+        type: integer
+      serviceId:
+        type: integer
+      userid:
+        type: integer
+    type: object
   balance.TransferMoney:
     properties:
       Money:
@@ -28,7 +39,7 @@ definitions:
       userid:
         type: integer
     type: object
-host: localhost:8000
+host: localhost:8080
 info:
   contact:
     name: Github.com
@@ -95,6 +106,38 @@ paths:
       - application/json
       responses: {}
       summary: reduceMoneyHandler
+      tags:
+      - Balance
+  /api/reduceReserve:
+    post:
+      description: списание средств из Резерва
+      parameters:
+      - description: RequestUser
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/balance.ReserveMoney'
+      produces:
+      - application/json
+      responses: {}
+      summary: reduceReserveHandler
+      tags:
+      - Balance
+  /api/reserve:
+    post:
+      description: Резерв денежных средств по определенной услуге
+      parameters:
+      - description: RequestUser
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/balance.ReserveMoney'
+      produces:
+      - application/json
+      responses: {}
+      summary: addMoneyToReserveHandler
       tags:
       - Balance
   /api/transfer:

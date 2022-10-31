@@ -10,8 +10,8 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8000",
-    "basePath": "/api/v1",
+    "host": "localhost:8080",
+    "basePath": "/",
     "paths": {
         "/api/add": {
             "post": {
@@ -101,6 +101,54 @@
                 "responses": {}
             }
         },
+        "/api/reduceReserve": {
+            "post": {
+                "description": "списание средств из Резерва",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Balance"
+                ],
+                "summary": "reduceReserveHandler",
+                "parameters": [
+                    {
+                        "description": "RequestUser",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/balance.ReserveMoney"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/reserve": {
+            "post": {
+                "description": "Резерв денежных средств по определенной услуге",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Balance"
+                ],
+                "summary": "addMoneyToReserveHandler",
+                "parameters": [
+                    {
+                        "description": "RequestUser",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/balance.ReserveMoney"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/transfer": {
             "post": {
                 "description": "Перевести деньги от пользователя к пользователю",
@@ -170,6 +218,23 @@
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "balance.ReserveMoney": {
+            "type": "object",
+            "properties": {
+                "money": {
+                    "type": "number"
+                },
+                "orderId": {
+                    "type": "integer"
+                },
+                "serviceId": {
+                    "type": "integer"
+                },
+                "userid": {
+                    "type": "integer"
                 }
             }
         },

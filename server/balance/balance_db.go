@@ -20,8 +20,8 @@ type ItransactionsStorage interface {
 	WriteOffMoney(userId uint, money float64) (TransactionsModel, error)
 	TransferMoney(userIdFrom uint, userIdTo uint, money float64) (TransactionsModel, error)
 	ListRecords(page int, filtermoney string, filtertime string, userid int) ([]TransactionsModel, error)
-	ReserveMoney(userId uint, serviceId uint, orderId uint, money float64) (ReserveModel, error)
-	ReduceReserveMoney(userId uint, serviceId uint, orderId uint, money float64) (ReserveModel, error)
+	ReserveMoney(userId uint, serviceId uint, orderId uint, money float64) error
+	ReduceReserveMoney(userId uint, serviceId uint, orderId uint, money float64) error
 }
 
 func NewBalanceStorageDB(iConnectDB IConnectDB) *BalanceStorageDB {
@@ -57,14 +57,44 @@ func (balanceStorageDB *BalanceStorageDB) AddMoney(userId uint, money float64) (
 	return balanceStorageDB.transaction, nil
 }
 
-func (balanceStorageDB *BalanceStorageDB) ReserveMoney(userId uint, serviceId uint, orderId uint, money float64) (ReserveModel, error) {
+func (balanceStorageDB *BalanceStorageDB) ReserveMoney(userId uint, serviceId uint, orderId uint, money float64) error {
 
-	return ReserveModel{}, nil
+	var id uint
+	query := `INSERT INTO "avito"."reserve_money" (userid,"money",serviceid,orderid) VALUES($1,$2,$3,$4) RETURNING id;`
+	row := balanceStorageDB.connect.QueryRow(context.Background(), query, userId, money, serviceId, orderId)
+	err := row.Scan(&id)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+	return nil
 }
 
-func (balanceStorageDB *BalanceStorageDB) ReduceReserveMoney(userId uint, serviceId uint, orderId uint, money float64) (ReserveModel, error) {
+func (balanceStorageDB *BalanceStorageDB) ReduceReserveMoney(userId uint, serviceId uint, orderId uint, money float64) error {
 
-	return ReserveModel{}, nil
+	var id uint
+	err := updateReserve(balanceStorageDB, userId, serviceId, orderId)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+	query := `INSERT INTO "avito"."accountingreport" (userid,"money",serviceid,orderid) VALUES($1,$2,$3,$4) RETURNING id;`
+	row := balanceStorageDB.connect.QueryRow(context.Background(), query, userId, money, serviceId, orderId)
+	err = row.Scan(&id)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+	return nil
+}
+
+func updateReserve(balanceStorageDB *BalanceStorageDB, userId uint, serviceId uint, orderId uint) error {
+	var id uint
+	query := `UPDATE avito."users" u set "money" = $1 WHERE userid=$2 and serviceid=$3 and orderid=$4 RETURNING id;`
+	row := balanceStorageDB.connect.QueryRow(context.Background(), query, 0, userId, serviceId, orderId)
+	err := row.Scan(&id)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+
+	return nil
 }
 
 func (balanceStorageDB *BalanceStorageDB) WriteOffMoney(userId uint, money float64) (TransactionsModel, error) {

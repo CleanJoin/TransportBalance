@@ -108,6 +108,54 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/api/reduceReserve": {
+            "post": {
+                "description": "списание средств из Резерва",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Balance"
+                ],
+                "summary": "reduceReserveHandler",
+                "parameters": [
+                    {
+                        "description": "RequestUser",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/balance.ReserveMoney"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/reserve": {
+            "post": {
+                "description": "Резерв денежных средств по определенной услуге",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Balance"
+                ],
+                "summary": "addMoneyToReserveHandler",
+                "parameters": [
+                    {
+                        "description": "RequestUser",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/balance.ReserveMoney"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/transfer": {
             "post": {
                 "description": "Перевести деньги от пользователя к пользователю",
@@ -180,6 +228,23 @@ const docTemplate = `{
                 }
             }
         },
+        "balance.ReserveMoney": {
+            "type": "object",
+            "properties": {
+                "money": {
+                    "type": "number"
+                },
+                "orderId": {
+                    "type": "integer"
+                },
+                "serviceId": {
+                    "type": "integer"
+                },
+                "userid": {
+                    "type": "integer"
+                }
+            }
+        },
         "balance.TransferMoney": {
             "type": "object",
             "properties": {
@@ -208,8 +273,8 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8000",
-	BasePath:         "/api/v1",
+	Host:             "localhost:8080",
+	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Swagger transportBalance",
 	Description:      "This is a sample server transportBalance",

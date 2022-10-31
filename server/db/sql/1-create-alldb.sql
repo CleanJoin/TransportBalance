@@ -52,6 +52,31 @@ CREATE TABLE avito.users (
 CREATE UNIQUE INDEX users_id_idx ON avito.users USING btree (id);
 
 
+CREATE TABLE avito.reserve_money (
+	id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
+	userid int4 NOT NULL,
+	"money" float8 NOT NULL,
+	serviceid int4 NOT NULL,
+	orderid int4 NOT NULL,
+	transaction_time timestamp NOT NULL DEFAULT now()
+);
+
+
+-- avito.accountingreport definition
+
+-- Drop table
+
+-- DROP TABLE avito.accountingreport;
+
+CREATE TABLE avito.accountingreport (
+	id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
+	userid int4 NOT NULL,
+	"money" float8 NOT NULL,
+	serviceid int4 NOT NULL,
+	orderid int4 NOT NULL,
+	transaction_time timestamp NOT NULL DEFAULT now()
+);
+
 ALTER TABLE avito.users OWNER TO avito;
 GRANT ALL ON TABLE avito.users TO avito;
 
