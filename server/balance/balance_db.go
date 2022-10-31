@@ -10,10 +10,11 @@ import (
 )
 
 type BalanceStorageDB struct {
-	transaction TransactionsModel
-	connect     *pgxpool.Pool
-	interUser   IUserStorage
-	limit       int
+	transaction   TransactionsModel
+	connect       *pgxpool.Pool
+	interUser     IUserStorage
+	limit         int
+	reserveReport ReserveModel
 }
 type ItransactionsStorage interface {
 	AddMoney(userId uint, money float64) (TransactionsModel, error)
@@ -175,6 +176,26 @@ func (balanceStorageDB *BalanceStorageDB) TransferMoney(userIdFrom uint, userIdT
 	return balanceStorageDB.transaction, nil
 }
 
+func ListRepots(balanceStorageDB *BalanceStorageDB, date string) ([]ReserveModel, error) {
+
+	pageTransaction := []ReserveModel{}
+	query := `select serviceid ,sum("money") from "avito"."accountingreport" a where transaction_time >= to_timestamp('$1','yyyy-MM') and transaction_time< to_timestamp('2022-11','yyyy-MM') group by serviceid`
+
+	commandTag, err := balanceStorageDB.connect.Query(context.Background(), query, date)
+	if err != nil {
+		return []ReserveModel{}, fmt.Errorf(err.Error())
+	}
+	for commandTag.Next() {
+		err := commandTag.Scan(&balanceStorageDB.reserveReport.ServiceId, &balanceStorageDB.reserveReport.Money)
+		pageTransaction = append(pageTransaction, balanceStorageDB.reserveReport)
+		if err != nil {
+			return []ReserveModel{}, fmt.Errorf(err.Error())
+		}
+	}
+	return pageTransaction, nil
+
+}
+
 func (balanceStorageDB *BalanceStorageDB) ListRecords(page int, filtermoney string, filtertime string, userid int) ([]TransactionsModel, error) {
 
 	offset := balanceStorageDB.limit * (page - 1)
@@ -196,6 +217,7 @@ func (balanceStorageDB *BalanceStorageDB) ListRecords(page int, filtermoney stri
 	return pageTransaction, nil
 
 }
+
 func addTransferMoney(balanceStorageDB *BalanceStorageDB, transaction TransactionsModel) error {
 	var id uint
 	query := `INSERT INTO "avito"."transaction" (useridto,"money",useridfrom) VALUES($1,$2,$3) RETURNING id;`
