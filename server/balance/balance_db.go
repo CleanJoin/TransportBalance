@@ -23,6 +23,7 @@ type ItransactionsStorage interface {
 	ListRecords(page int, filtermoney string, filtertime string, userid int) ([]TransactionsModel, error)
 	ReserveMoney(userId uint, serviceId uint, orderId uint, money float64) error
 	ReduceReserveMoney(userId uint, serviceId uint, orderId uint, money float64) error
+	ListRepots(date string) ([]ReserveModel, error)
 }
 
 func NewBalanceStorageDB(iConnectDB IConnectDB) *BalanceStorageDB {
@@ -61,9 +62,20 @@ func (balanceStorageDB *BalanceStorageDB) AddMoney(userId uint, money float64) (
 func (balanceStorageDB *BalanceStorageDB) ReserveMoney(userId uint, serviceId uint, orderId uint, money float64) error {
 
 	var id uint
+	userModel, err := balanceStorageDB.interUser.GetById(userId)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+	if userModel.Money < money {
+		return fmt.Errorf("не хватает денег")
+	}
+	_, err = balanceStorageDB.WriteOffMoney(userId, money)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
 	query := `INSERT INTO "avito"."reserve_money" (userid,"money",serviceid,orderid) VALUES($1,$2,$3,$4) RETURNING id;`
 	row := balanceStorageDB.connect.QueryRow(context.Background(), query, userId, money, serviceId, orderId)
-	err := row.Scan(&id)
+	err = row.Scan(&id)
 	if err != nil {
 		return fmt.Errorf(err.Error())
 	}
@@ -88,7 +100,7 @@ func (balanceStorageDB *BalanceStorageDB) ReduceReserveMoney(userId uint, servic
 
 func updateReserve(balanceStorageDB *BalanceStorageDB, userId uint, serviceId uint, orderId uint) error {
 	var id uint
-	query := `UPDATE avito."users" u set "money" = $1 WHERE userid=$2 and serviceid=$3 and orderid=$4 RETURNING id;`
+	query := `UPDATE avito."reserve_money"  u set "money" = $1 WHERE userId=$2 and serviceid=$3 and orderid=$4 RETURNING id;`
 	row := balanceStorageDB.connect.QueryRow(context.Background(), query, 0, userId, serviceId, orderId)
 	err := row.Scan(&id)
 	if err != nil {
@@ -176,10 +188,10 @@ func (balanceStorageDB *BalanceStorageDB) TransferMoney(userIdFrom uint, userIdT
 	return balanceStorageDB.transaction, nil
 }
 
-func ListRepots(balanceStorageDB *BalanceStorageDB, date string) ([]ReserveModel, error) {
+func (balanceStorageDB *BalanceStorageDB) ListRepots(date string) ([]ReserveModel, error) {
 
 	pageTransaction := []ReserveModel{}
-	query := `select serviceid ,sum("money") from "avito"."accountingreport" a where transaction_time >= to_timestamp('$1','yyyy-MM') and transaction_time< to_timestamp('2022-11','yyyy-MM') group by serviceid`
+	query := `select serviceid ,sum("money") from "avito"."accountingreport" a where transaction_time >= to_timestamp($1,'yyyy-MM') and transaction_time< to_timestamp($1,'yyyy-MM')  + interval '1 month' group by serviceid`
 
 	commandTag, err := balanceStorageDB.connect.Query(context.Background(), query, date)
 	if err != nil {

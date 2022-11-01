@@ -44,6 +44,30 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/api/docs": {
+            "post": {
+                "description": "Получить отчет для Бухгалтерии",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "createGenDocHandler",
+                "parameters": [
+                    {
+                        "description": "RequestUser",
+                        "name": "Date",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/balance.GenDoc"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/health": {
             "get": {
                 "description": "get the status of server.",
@@ -206,6 +230,14 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "balance.GenDoc": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                }
+            }
+        },
         "balance.RequestMoveMoney": {
             "type": "object",
             "properties": {
@@ -273,7 +305,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "localhost:8000",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Swagger transportBalance",

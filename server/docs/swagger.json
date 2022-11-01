@@ -10,7 +10,7 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "localhost:8000",
     "basePath": "/",
     "paths": {
         "/api/add": {
@@ -31,6 +31,30 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/balance.RequestMoveMoney"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/docs": {
+            "post": {
+                "description": "Получить отчет для Бухгалтерии",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "createGenDocHandler",
+                "parameters": [
+                    {
+                        "description": "RequestUser",
+                        "name": "Date",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/balance.GenDoc"
                         }
                     }
                 ],
@@ -199,6 +223,14 @@
         }
     },
     "definitions": {
+        "balance.GenDoc": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                }
+            }
+        },
         "balance.RequestMoveMoney": {
             "type": "object",
             "properties": {

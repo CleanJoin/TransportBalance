@@ -9,6 +9,6 @@ RUN apt install netcat -y
 
 RUN go build
 
-#CMD ./wait_for_it.sh go run .
+CMD ./wait_for_it.sh go run .
 
 

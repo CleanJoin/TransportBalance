@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"time"
@@ -67,6 +69,10 @@ type ReserveMoney struct {
 	OrderId   uint    `json:"orderId"`
 }
 
+type GenDoc struct {
+	Date string `json:"date"`
+}
+
 type IChatServer interface {
 	Use(userStorage IUserStorage, transactionsStorage ItransactionsStorage)
 	Run()
@@ -97,8 +103,8 @@ func (serverGin *ServerGin) Use(userStorage IUserStorage, transactionsStorage It
 	serverGin.router.POST("/api/getmovemoney", getLastTransactionHadler(serverGin.transactionsStorage))
 	serverGin.router.POST("/api/reserve", addMoneyToReserveHandler(serverGin.transactionsStorage))
 	serverGin.router.POST("/api/reduceReserve", reduceReserveHandler(serverGin.transactionsStorage))
+	serverGin.router.POST("/api/docs", createGenDocHandler(serverGin.transactionsStorage))
 
-	//serverGin.router.POST("/api/accountingReport", reduceReserveHandler(serverGin.transactionsStorage))
 	// serverGin.router.GET("https://freecurrencyapi.net/api/v2/latest?apikey=d53f1180-94a8-11ec-992b-13a8f6f1bdf9&base_currency=USD",exchangeHandler())
 
 }
@@ -305,6 +311,35 @@ func transferMoneyHandler(transactionsStorage ItransactionsStorage) gin.HandlerF
 	}
 }
 
+// createGenDocHandler godoc
+// @tags Reports
+// @Summary createGenDocHandler
+// @Description Получить отчет для Бухгалтерии
+// @Produce json
+// @Param Date body GenDoc true "RequestUser"
+// @Router /api/docs [post]
+func createGenDocHandler(transactionsStorage ItransactionsStorage) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		requestUser := new(GenDoc)
+		var fileDownloadName string
+		statusCode, ctx2, checkBadRequest := validateClientRequest(ctx, requestUser)
+
+		if !checkBadRequest {
+			ctx.IndentedJSON(statusCode, ctx2)
+			return
+		}
+
+		reserveModel, err := transactionsStorage.ListRepots(requestUser.Date)
+		if err != nil {
+			ctx.IndentedJSON(http.StatusForbidden, err.Error())
+			return
+		}
+		fileDownloadName = createReportCSV(reserveModel)
+
+		ctx.IndentedJSON(http.StatusOK, gin.H{"URLCSV": fmt.Sprintf("http://localhost:8080/download/%s.csv", fileDownloadName)})
+	}
+}
+
 // getMoneyUserHadler godoc
 // @tags Balance
 // @Summary getMoneyUserHadler
@@ -335,7 +370,7 @@ func getMoneyUserHadler(userStorage IUserStorage) gin.HandlerFunc {
 			ctx.IndentedJSON(http.StatusOK, gin.H{"username": userModel.Username, "money": userModel.Money})
 			return
 		}
-		ctx.IndentedJSON(http.StatusOK, userModel)
+		ctx.IndentedJSON(http.StatusOK, gin.H{"userId": userModel.ID, "money": userModel.Money})
 	}
 }
 
@@ -392,4 +427,22 @@ func validateClientRequest(ctx *gin.Context, requestData interface{}) (int, inte
 		return http.StatusBadRequest, gin.H{"error": "Не содержит поля в запросе"}, false
 	}
 	return http.StatusOK, gin.H{"error": ""}, true
+}
+
+func createReportCSV(reserveModel []ReserveModel) string {
+
+	generator := rand.New(rand.NewSource(time.Now().UnixNano()))
+	n := strconv.Itoa(generator.Int())
+	file, err := os.Create("./download/" + n + ".csv")
+
+	if err != nil {
+		fmt.Println("Unable to create file:", err)
+		return ""
+	}
+	defer file.Close()
+	for _, value := range reserveModel {
+		file.WriteString(fmt.Sprintf("%s;%s\n", value.ServiceId, value.Money))
+	}
+
+	return file.Name()
 }

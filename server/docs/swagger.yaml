@@ -1,5 +1,10 @@
 basePath: /
 definitions:
+  balance.GenDoc:
+    properties:
+      date:
+        type: string
+    type: object
   balance.RequestMoveMoney:
     properties:
       money:
@@ -39,7 +44,7 @@ definitions:
       userid:
         type: integer
     type: object
-host: localhost:8080
+host: localhost:8000
 info:
   contact:
     name: Github.com
@@ -65,6 +70,22 @@ paths:
       summary: addMoneyHandler
       tags:
       - Balance
+  /api/docs:
+    post:
+      description: Получить отчет для Бухгалтерии
+      parameters:
+      - description: RequestUser
+        in: body
+        name: Date
+        required: true
+        schema:
+          $ref: '#/definitions/balance.GenDoc'
+      produces:
+      - application/json
+      responses: {}
+      summary: createGenDocHandler
+      tags:
+      - Reports
   /api/health:
     get:
       consumes:

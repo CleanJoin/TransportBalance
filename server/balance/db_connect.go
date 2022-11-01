@@ -22,6 +22,7 @@ type IConnectDB interface {
 
 func NewConnectDB(port int) *ConnectDB {
 	connectDB := new(ConnectDB)
+
 	connectDB.user = os.Getenv("POSTGRES_USER")
 	connectDB.password = os.Getenv("POSTGRES_PASSWORD")
 	connectDB.host = os.Getenv("POSTGRES_HOST")
