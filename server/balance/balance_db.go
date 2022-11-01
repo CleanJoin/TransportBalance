@@ -191,9 +191,9 @@ func (balanceStorageDB *BalanceStorageDB) TransferMoney(userIdFrom uint, userIdT
 func (balanceStorageDB *BalanceStorageDB) ListRepots(date string) ([]ReserveModel, error) {
 
 	pageTransaction := []ReserveModel{}
-	query := `select serviceid ,sum("money") from "avito"."accountingreport" a where transaction_time >= to_timestamp($1,'yyyy-MM') and transaction_time< to_timestamp($1,'yyyy-MM')  + interval '1 month' group by serviceid`
+	query := `select serviceid ,sum("money") from "avito"."accountingreport" a where transaction_time >= to_timestamp('` + date + `','yyyy-MM') and transaction_time< to_timestamp('` + date + `','yyyy-MM')  + interval '1 month' group by serviceid`
 
-	commandTag, err := balanceStorageDB.connect.Query(context.Background(), query, date)
+	commandTag, err := balanceStorageDB.connect.Query(context.Background(), query)
 	if err != nil {
 		return []ReserveModel{}, fmt.Errorf(err.Error())
 	}

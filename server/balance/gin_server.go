@@ -104,6 +104,11 @@ func (serverGin *ServerGin) Use(userStorage IUserStorage, transactionsStorage It
 	serverGin.router.POST("/api/reserve", addMoneyToReserveHandler(serverGin.transactionsStorage))
 	serverGin.router.POST("/api/reduceReserve", reduceReserveHandler(serverGin.transactionsStorage))
 	serverGin.router.POST("/api/docs", createGenDocHandler(serverGin.transactionsStorage))
+	serverGin.router.GET("/api/download/:filename", func(ctx *gin.Context) {
+		fileName := ctx.Param("filename")
+		ctx.FileAttachment("/usr/src/server/download/"+fileName, fileName)
+
+	})
 
 	// serverGin.router.GET("https://freecurrencyapi.net/api/v2/latest?apikey=d53f1180-94a8-11ec-992b-13a8f6f1bdf9&base_currency=USD",exchangeHandler())
 
@@ -334,9 +339,14 @@ func createGenDocHandler(transactionsStorage ItransactionsStorage) gin.HandlerFu
 			ctx.IndentedJSON(http.StatusForbidden, err.Error())
 			return
 		}
+
+		if len(reserveModel) == 0 {
+			ctx.IndentedJSON(http.StatusForbidden, fmt.Sprintln("нет данных"))
+			return
+		}
 		fileDownloadName = createReportCSV(reserveModel)
 
-		ctx.IndentedJSON(http.StatusOK, gin.H{"URLCSV": fmt.Sprintf("http://localhost:8080/download/%s.csv", fileDownloadName)})
+		ctx.IndentedJSON(http.StatusOK, gin.H{"URLCSV": fmt.Sprintf("http://localhost:8080/api/%s", fileDownloadName[2:])})
 	}
 }
 
@@ -441,7 +451,7 @@ func createReportCSV(reserveModel []ReserveModel) string {
 	}
 	defer file.Close()
 	for _, value := range reserveModel {
-		file.WriteString(fmt.Sprintf("%s;%s\n", value.ServiceId, value.Money))
+		file.WriteString(fmt.Sprintf("%d;%f\n", value.ServiceId, value.Money))
 	}
 
 	return file.Name()
