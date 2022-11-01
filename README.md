@@ -45,8 +45,14 @@ serverGin.router.POST("/api/reduceReserve", reduceReserveHandler(serverGin.trans
 
 Доп. задание 1:
 Создание  отчета для Бухгалтерии в формате csv (На вход: год-месяц) На выходе ссылка на CSV файл.
-serverGin.router.POST("/gendoc", createGenDocHandler())
+serverGin.router.POST("/api/docs", createGenDocHandler(serverGin.transactionsStorage))
 
+По ссылке которая выдается в json (createGenDocHandler) Можно сделать get и сохранить файл
+serverGin.router.GET("/api/download/:filename", func(ctx *gin.Context) {
+		fileName := ctx.Param("filename")
+		ctx.FileAttachment("/usr/src/server/download/"+fileName, fileName)
+
+	})
 
 Доп. задание 2:(параметр старницы и сортировку по сумме и дате) (Сделано для перевода денег между пользователями)
 serverGin.router.POST("/api/getmovemoney", getLastTransactionHadler(serverGin.transactionsStorage))
