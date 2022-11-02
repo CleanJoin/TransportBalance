@@ -52,7 +52,6 @@ serverGin.router.GET("/api/download/:filename", func(ctx *gin.Context) {
 		fileName := ctx.Param("filename")
 		ctx.FileAttachment("/usr/src/server/download/"+fileName, fileName)
 
-	})
 
 Доп. задание 2:(параметр старницы и сортировку по сумме и дате) (Сделано для перевода денег между пользователями)
 serverGin.router.POST("/api/getmovemoney", getLastTransactionHadler(serverGin.transactionsStorage))
